@@ -20,7 +20,7 @@ This is the **free version** of TenantFlow. It includes core functionality to he
 - Granular role-based permissions (owner, admin, member, viewer)
 - Live activity feed
 
-**Upgrade to TenantFlow Pro:** https://djangozen.com
+**Upgrade to TenantFlow Pro:** https://djangozen.com/product/tenantflow-pro/
 
 ## Quick Start
 
@@ -50,5 +50,5 @@ python manage.py runserver
 5. Login: **admin** / **admin123**
 
 ---
-*Free version by DjangoZen. Upgrade to Pro at https://djangozen.com*
+*Free version by DjangoZen. Upgrade to Pro at https://djangozen.com/product/tenantflow-pro/*
 *Copyright 2026 DjangoZen. All Rights Reserved.*
