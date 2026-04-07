@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}No Organization - TenantFlow{% endblock %}
+{% block page_title %}Getting Started{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-12">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">No Organization Found</h2>
+        <p class="text-sm text-gray-500 mb-6">
+            You are not currently associated with any organization. Please contact an administrator
+            or check if you have a pending invitation.
+        </p>
+
+        <!-- Pending invitations hint -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+            <div class="flex items-start space-x-3">
+                <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <div>
+                    <p class="text-sm font-medium text-blue-800">Check your email</p>
+                    <p class="text-xs text-blue-600 mt-1">
+                        If someone invited you, check your email for an invitation link. Click the link to join their organization.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <a href="{% url 'switch_organization' %}"
+               class="block w-full px-4 py-2 brand-bg text-white text-sm font-medium rounded-lg brand-bg-hover transition-colors">
+                Browse Organizations
+            </a>
+            <a href="/admin/"
+               class="block w-full px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                Go to Admin Panel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

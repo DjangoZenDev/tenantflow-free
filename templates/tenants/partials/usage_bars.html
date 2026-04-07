@@ -1,0 +1,78 @@
+<!-- Usage Metrics with Progress Bars -->
+<div class="space-y-6">
+    {% for metric in usage_metrics %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+                {% if metric.metric_name == 'API Calls' %}
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {% elif metric.metric_name == 'Storage (MB)' or 'Storage' in metric.metric_name %}
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                </svg>
+                {% elif metric.metric_name == 'Team Members' or 'Members' in metric.metric_name %}
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                {% else %}
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                {% endif %}
+                <h3 class="text-sm font-semibold text-gray-900">{{ metric.metric_name }}</h3>
+            </div>
+            <span class="text-sm font-semibold
+                {% if metric.is_over_limit %}text-red-600
+                {% elif metric.is_near_limit %}text-yellow-600
+                {% else %}brand-text{% endif %}">
+                {{ metric.usage_percentage }}%
+            </span>
+        </div>
+
+        <div class="flex items-baseline space-x-1 mb-3">
+            <span class="text-3xl font-bold text-gray-900">{{ metric.value|floatformat:0 }}</span>
+            <span class="text-sm text-gray-400">of {{ metric.limit|floatformat:0 }}</span>
+        </div>
+
+        <div class="w-full bg-gray-100 rounded-full h-3">
+            <div class="h-3 rounded-full transition-all duration-700 ease-out
+                {% if metric.is_over_limit %}bg-red-500
+                {% elif metric.is_near_limit %}bg-yellow-500
+                {% else %}bg-emerald-500{% endif %}"
+                style="width: {{ metric.usage_percentage }}%">
+            </div>
+        </div>
+
+        {% if metric.is_near_limit and not metric.is_over_limit %}
+        <p class="mt-2 text-xs text-yellow-600 flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            Approaching limit. Consider upgrading your plan.
+        </p>
+        {% elif metric.is_over_limit %}
+        <p class="mt-2 text-xs text-red-600 flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Limit reached! Upgrade to continue using this feature.
+        </p>
+        {% endif %}
+
+        {% if metric.period_start and metric.period_end %}
+        <p class="mt-2 text-xs text-gray-400">
+            Period: {{ metric.period_start|date:"M d" }} - {{ metric.period_end|date:"M d, Y" }}
+        </p>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        <p class="text-sm text-gray-500">No usage metrics available yet.</p>
+    </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Usage - TenantFlow{% endblock %}
+{% block page_title %}Usage Overview{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Usage Overview</h2>
+            <p class="mt-1 text-sm text-gray-500">Track your resource consumption and plan limits.</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+            {% if org.plan == 'free' %}bg-gray-100 text-gray-700
+            {% elif org.plan == 'pro' %}bg-blue-100 text-blue-700
+            {% elif org.plan == 'enterprise' %}bg-purple-100 text-purple-700
+            {% endif %}">
+            {{ org.get_plan_display }} Plan
+        </span>
+    </div>
+
+    <!-- Usage Bars -->
+    {% include "tenants/partials/usage_bars.html" %}
+
+    <!-- Trend Charts -->
+    {% if usage_chart_data %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Usage Trends</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {% for chart in usage_chart_data %}
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-3">{{ chart.metric_name }}</h4>
+                <div class="relative" style="height: 220px;">
+                    <canvas id="chart-{{ forloop.counter }}"></canvas>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Upgrade CTA -->
+    {% if org.plan == 'free' %}
+    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-sm p-6 text-white">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-semibold">Need more resources?</h3>
+                <p class="mt-1 text-sm text-white/80">Upgrade your plan to unlock higher limits and premium features.</p>
+            </div>
+            <a href="{% url 'billing_view' %}"
+               class="inline-flex items-center px-6 py-3 bg-white text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors shadow-sm">
+                View Plans
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if usage_chart_data %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartData = {{ usage_chart_data|safe }};
+    const colors = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];
+
+    chartData.forEach(function(chart, index) {
+        const ctx = document.getElementById('chart-' + (index + 1));
+        if (!ctx) return;
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chart.labels,
+                datasets: [{
+                    label: chart.metric_name,
+                    data: chart.values,
+                    borderColor: colors[index % colors.length],
+                    backgroundColor: colors[index % colors.length] + '20',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 }, color: '#9CA3AF' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#F3F4F6' },
+                        ticks: { font: { size: 11 }, color: '#9CA3AF' }
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

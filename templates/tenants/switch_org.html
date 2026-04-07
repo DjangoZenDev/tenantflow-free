@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Switch Organization - TenantFlow{% endblock %}
+{% block page_title %}Switch Organization{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-2">Your Organizations</h2>
+        <p class="text-sm text-gray-500 mb-6">Select an organization to switch to.</p>
+
+        <div class="space-y-3">
+            {% for membership in user_orgs %}
+            <form method="post" action="{% url 'switch_organization' %}">
+                {% csrf_token %}
+                <input type="hidden" name="organization_id" value="{{ membership.organization.id|default:membership.id }}">
+                <button type="submit"
+                        class="w-full flex items-center justify-between p-4 rounded-lg border-2 transition-all text-left
+                        {% if request.organization and request.organization.id == membership.id or request.organization.id == membership.organization.id %}border-brand-500 bg-brand-50{% else %}border-gray-200 hover:border-gray-300 hover:bg-gray-50{% endif %}">
+                    <div class="flex items-center space-x-4">
+                        {% with org_item=membership.organization|default:membership %}
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center
+                            {% if org_item.plan == 'free' %}bg-gray-100
+                            {% elif org_item.plan == 'pro' %}bg-blue-100
+                            {% elif org_item.plan == 'enterprise' %}bg-purple-100
+                            {% endif %}">
+                            {% if org_item.logo_url %}
+                            <img src="{{ org_item.logo_url }}" alt="{{ org_item.name }}" class="w-8 h-8 rounded object-cover">
+                            {% else %}
+                            <span class="text-lg font-bold
+                                {% if org_item.plan == 'free' %}text-gray-500
+                                {% elif org_item.plan == 'pro' %}text-blue-600
+                                {% elif org_item.plan == 'enterprise' %}text-purple-600
+                                {% endif %}">
+                                {{ org_item.name|first|upper }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">{{ org_item.name }}</p>
+                            <div class="flex items-center space-x-2 mt-1">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                                    {% if org_item.plan == 'free' %}bg-gray-100 text-gray-600
+                                    {% elif org_item.plan == 'pro' %}bg-blue-100 text-blue-700
+                                    {% elif org_item.plan == 'enterprise' %}bg-purple-100 text-purple-700
+                                    {% endif %}">
+                                    {{ org_item.get_plan_display }}
+                                </span>
+                                {% if membership.role %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                                    {% if membership.role == 'owner' %}bg-red-100 text-red-700
+                                    {% elif membership.role == 'admin' %}bg-orange-100 text-orange-700
+                                    {% elif membership.role == 'member' %}bg-emerald-100 text-emerald-700
+                                    {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                    {{ membership.get_role_display }}
+                                </span>
+                                {% endif %}
+                                <span class="text-xs text-gray-400">{{ org_item.member_count }} member{{ org_item.member_count|pluralize }}</span>
+                            </div>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="flex items-center">
+                        {% if request.organization and request.organization.id == membership.id or request.organization.id == membership.organization.id %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-700">
+                            Current
+                        </span>
+                        {% else %}
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                        {% endif %}
+                    </div>
+                </button>
+            </form>
+            {% empty %}
+            <div class="text-center py-8">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <p class="text-sm text-gray-500">No organizations available.</p>
+                <p class="text-xs text-gray-400 mt-1">You are not a member of any active organization.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

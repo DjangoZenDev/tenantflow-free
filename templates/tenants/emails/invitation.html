@@ -1,0 +1,28 @@
+You've been invited to join {{ org_name }} on TenantFlow
+=====================================================
+
+Hi,
+
+{{ invited_by }} has invited you to join "{{ org_name }}" as a {{ role }} on TenantFlow.
+
+To accept this invitation, visit the following link:
+
+{{ accept_url }}
+
+This invitation will expire in 7 days.
+
+---
+
+About your role:
+{% if role == 'Admin' %}
+As an Admin, you will be able to manage team members, configure organization settings, and access all features.
+{% elif role == 'Member' %}
+As a Member, you will have full access to all features within the organization.
+{% elif role == 'Viewer' %}
+As a Viewer, you will have read-only access to the organization's resources.
+{% endif %}
+
+If you did not expect this invitation, you can safely ignore this email.
+
+---
+Powered by TenantFlow

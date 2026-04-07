@@ -1,0 +1,36 @@
+{% for org_item in user_orgs %}
+<form method="post" action="{% url 'switch_organization' %}" class="block">
+    {% csrf_token %}
+    <input type="hidden" name="organization_id" value="{{ org_item.id }}">
+    <button type="submit"
+            class="w-full flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-50 transition-colors text-left">
+        <div class="flex items-center space-x-3 min-w-0">
+            {% if org_item.logo_url %}
+            <img src="{{ org_item.logo_url }}" alt="{{ org_item.name }}" class="w-6 h-6 rounded object-cover flex-shrink-0">
+            {% else %}
+            <div class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                 style="background-color: {{ org_item.primary_color|default:'#10B981' }}">
+                {{ org_item.name|first|upper }}
+            </div>
+            {% endif %}
+            <div class="min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">{{ org_item.name }}</p>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium
+                    {% if org_item.plan == 'free' %}bg-gray-100 text-gray-600
+                    {% elif org_item.plan == 'pro' %}bg-blue-100 text-blue-700
+                    {% elif org_item.plan == 'enterprise' %}bg-purple-100 text-purple-700
+                    {% endif %}">
+                    {{ org_item.get_plan_display }}
+                </span>
+            </div>
+        </div>
+        {% if request.organization and request.organization.id == org_item.id %}
+        <svg class="w-4 h-4 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        {% endif %}
+    </button>
+</form>
+{% empty %}
+<div class="px-4 py-3 text-sm text-gray-500 text-center">No organizations available.</div>
+{% endfor %}

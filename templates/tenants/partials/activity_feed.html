@@ -1,0 +1,62 @@
+{% if recent_activities %}
+<div class="flow-root">
+    <ul class="-mb-8">
+        {% for activity in recent_activities %}
+        <li>
+            <div class="relative pb-8">
+                {% if not forloop.last %}
+                <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                {% endif %}
+                <div class="relative flex items-start space-x-3">
+                    <!-- Icon -->
+                    <div class="relative">
+                        {% if activity.user %}
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium"
+                             style="background-color: {{ activity.user.avatar_color|default:'#10B981' }}">
+                            {{ activity.user.initials }}
+                        </div>
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        <!-- Action color dot -->
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white
+                            {% if 'create' in activity.action or 'invite' in activity.action %}bg-green-400
+                            {% elif 'update' in activity.action or 'change' in activity.action %}bg-blue-400
+                            {% elif 'delete' in activity.action or 'remove' in activity.action %}bg-red-400
+                            {% else %}bg-gray-400{% endif %}">
+                        </span>
+                    </div>
+                    <!-- Content -->
+                    <div class="min-w-0 flex-1">
+                        <div class="text-sm text-gray-700">
+                            {% if activity.user %}
+                            <span class="font-medium text-gray-900">{{ activity.user.get_full_name|default:activity.user.username }}</span>
+                            {% else %}
+                            <span class="font-medium text-gray-900">System</span>
+                            {% endif %}
+                            <span>{{ activity.action }}</span>
+                        </div>
+                        {% if activity.detail %}
+                        <p class="mt-0.5 text-sm text-gray-500">{{ activity.detail }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-400">{{ activity.created_at|timesince }} ago</p>
+                    </div>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}
+<div class="text-center py-6">
+    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <p class="text-sm text-gray-500">No recent activity.</p>
+    <p class="text-xs text-gray-400 mt-1">Activity will appear here as your team takes actions.</p>
+</div>
+{% endif %}

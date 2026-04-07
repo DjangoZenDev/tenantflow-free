@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Team - TenantFlow{% endblock %}
+{% block page_title %}Team Management{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6" x-data="{ showInviteModal: false }">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Team Members</h2>
+            <p class="mt-1 text-sm text-gray-500">Manage your organization's team and invitations.</p>
+        </div>
+        {% if is_admin_or_owner %}
+        <button @click="showInviteModal = true"
+                class="inline-flex items-center px-4 py-2 brand-bg text-white text-sm font-medium rounded-lg brand-bg-hover transition-colors shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+            </svg>
+            Invite Member
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Team List -->
+    <div id="team-list" class="bg-white rounded-xl shadow-sm border border-gray-200">
+        {% include "tenants/partials/team_list.html" %}
+    </div>
+
+    <!-- Invite Modal -->
+    <div x-show="showInviteModal" x-cloak
+         class="fixed inset-0 z-50 overflow-y-auto"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black bg-opacity-30 transition-opacity"
+                 @click="showInviteModal = false"></div>
+            <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 z-10"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                 @click.away="showInviteModal = false">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Invite Team Member</h3>
+                    <button @click="showInviteModal = false"
+                            class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="invite-form-container"
+                     hx-get="{% url 'invite_member' %}" hx-trigger="load" hx-swap="innerHTML">
+                    <div class="flex justify-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

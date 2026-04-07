@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TenantFlow{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <!-- Welcome Banner -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">
+                    Welcome back{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}!
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Here's what's happening with
+                    <span class="font-medium text-gray-700">{{ org.name }}</span>
+                    today.
+                </p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                    {% if org.plan == 'free' %}bg-gray-100 text-gray-700
+                    {% elif org.plan == 'pro' %}bg-blue-100 text-blue-700
+                    {% elif org.plan == 'enterprise' %}bg-purple-100 text-purple-700
+                    {% endif %}">
+                    {{ org.get_plan_display }} Plan
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand-50 text-brand-700">
+                    {{ member_count }} member{{ member_count|pluralize }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Usage Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {% for metric in usage_metrics %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-medium text-gray-500">{{ metric.metric_name }}</h3>
+                <span class="text-sm font-semibold
+                    {% if metric.is_over_limit %}text-red-600
+                    {% elif metric.is_near_limit %}text-yellow-600
+                    {% else %}text-gray-900{% endif %}">
+                    {{ metric.usage_percentage }}%
+                </span>
+            </div>
+            <div class="text-2xl font-bold text-gray-900 mb-3">
+                {{ metric.value|floatformat:0 }}
+                <span class="text-sm font-normal text-gray-400">/ {{ metric.limit|floatformat:0 }}</span>
+            </div>
+            <div class="w-full bg-gray-100 rounded-full h-2">
+                <div class="h-2 rounded-full transition-all duration-500
+                    {% if metric.is_over_limit %}bg-red-500
+                    {% elif metric.is_near_limit %}bg-yellow-500
+                    {% else %}bg-emerald-500{% endif %}"
+                    style="width: {{ metric.usage_percentage }}%"></div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center text-gray-500">
+            No usage metrics available yet.
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Team Members Preview -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Team Members</h3>
+                <a href="{% url 'team_members' %}" class="text-sm brand-text hover:opacity-80 font-medium">
+                    View All ({{ member_count }})
+                </a>
+            </div>
+            <div class="space-y-3">
+                {% for membership in team_members %}
+                <div class="flex items-center justify-between py-2">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium"
+                             style="background-color: {{ membership.user.avatar_color }}">
+                            {{ membership.user.initials }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ membership.user.get_full_name|default:membership.user.username }}</p>
+                            <p class="text-xs text-gray-500">{{ membership.user.email }}</p>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        {% if membership.role == 'owner' %}bg-red-100 text-red-700
+                        {% elif membership.role == 'admin' %}bg-orange-100 text-orange-700
+                        {% elif membership.role == 'member' %}bg-emerald-100 text-emerald-700
+                        {% else %}bg-gray-100 text-gray-600{% endif %}">
+                        {{ membership.get_role_display }}
+                    </span>
+                </div>
+                {% empty %}
+                <p class="text-sm text-gray-500 text-center py-4">No team members yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div class="space-y-2">
+                    <a href="{% url 'team_members' %}"
+                       class="flex items-center px-4 py-3 rounded-lg bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                        <span class="text-sm font-medium">Invite Member</span>
+                    </a>
+                    <a href="{% url 'billing_view' %}"
+                       class="flex items-center px-4 py-3 rounded-lg bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        <span class="text-sm font-medium">View Billing</span>
+                    </a>
+                    <a href="{% url 'organization_settings' %}"
+                       class="flex items-center px-4 py-3 rounded-lg bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span class="text-sm font-medium">Settings</span>
+                    </a>
+                    <a href="{% url 'usage_overview' %}"
+                       class="flex items-center px-4 py-3 rounded-lg bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                        <span class="text-sm font-medium">API Keys</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Overview</h3>
+                <dl class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <dt class="text-sm text-gray-500">Team Members</dt>
+                        <dd class="text-sm font-semibold text-gray-900">{{ member_count }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <dt class="text-sm text-gray-500">Pending Invites</dt>
+                        <dd class="text-sm font-semibold text-gray-900">{{ pending_invites }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <dt class="text-sm text-gray-500">Current Plan</dt>
+                        <dd class="text-sm font-semibold
+                            {% if org.plan == 'free' %}text-gray-600
+                            {% elif org.plan == 'pro' %}text-blue-600
+                            {% else %}text-purple-600{% endif %}">
+                            {{ org.get_plan_display }}
+                        </dd>
+                    </div>
+                    {% if subscription %}
+                    <div class="flex items-center justify-between">
+                        <dt class="text-sm text-gray-500">Billing Status</dt>
+                        <dd class="text-sm font-semibold
+                            {% if subscription.status == 'active' %}text-green-600
+                            {% elif subscription.status == 'trialing' %}text-blue-600
+                            {% elif subscription.status == 'past_due' %}text-red-600
+                            {% else %}text-gray-600{% endif %}">
+                            {{ subscription.get_status_display }}
+                        </dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Feed (Pro) -->
+    {% include "tenants/partials/upgrade_card.html" with title="Activity Feed" description="Real-time activity timeline showing all team actions. Available in TenantFlow Pro." %}
+</div>
+{% endblock %}
