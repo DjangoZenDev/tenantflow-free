@@ -1,5 +1,7 @@
 # TenantFlow Free
 
+![tenantflow-free](docs/screenshots/hero.png)
+
 **SaaS Multi-Tenant Dashboard — Free Edition**
 *By DjangoZen - https://djangozen.com*
 
